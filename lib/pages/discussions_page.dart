@@ -1,39 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:ado_chat/data/discussion.data.dart'; // contient la liste conversations
+import 'package:ado_chat/pages/salon_message_page.dart';
 
-// ignore: must_be_immutable
 class DiscussionsPage extends StatelessWidget {
-  DiscussionsPage({super.key});
+  const DiscussionsPage({super.key});
 
-  List<String> chatRoom = ["Evan's", 'Arthur', 'Raymon'];
-  List<String> lastMessage = ['Yo !', "Qu'est-ce qui s'est passé au cours ?", "Bonjour"];
-
-  void affiche() {
-    SnackBar(content: Text("$chatRoom[index] : $lastMessage[index]"));
+  void affiche(BuildContext context, Map<String, dynamic> conv) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("${conv['name']} : ${conv['lastMessage']}")),
+    );
   }
+
   @override
-  Widget build(BuildContext context){
-    return 
-      ListView.builder(
-        itemCount: chatRoom.length,
-        itemBuilder: (context, index) =>
-          ListTile(
-            leading: Icon(Icons.account_circle, size: 64,),
-            title: Text(chatRoom[index]),
-            subtitle: Text(lastMessage[index]),
-            onTap: 
-              affiche
-          )
-        
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: conversations.length,
+      itemBuilder: (context, index) {
+        final conv = conversations[index];
+
+        return ListTile(
+          leading: Icon(
+            conv["icon"],
+            size: 48,
+          ),
+          title: Text(conv["name"]),
+          subtitle: Text(conv["lastMessage"]),
+          trailing: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                conv["date"],
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 6),
+              if (conv["unread"] > 0)
+                Badge.count(
+                  count: conv["unread"],
+                  backgroundColor: Colors.green,
+                ),
+            ],
+          ),
+          onTap: () => {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SalonMessagePage(
+                  name: conv["name"],
+                  icon: conv["icon"],
+                ),
+              ),
+            )
+          },
         );
-      // ListTile(
-      //   leading: Icon(Icons.account_circle, size: 64,),
-      //   title: Text("Evan's"),
-      //   subtitle: const Text('Yo ! Ton appli fonctionne ?'),
-      //   onTap: () {
-      //     // Affiche un message en bas
-      //     ScaffoldMessenger.of(context)
-      //     .showSnackBar( const SnackBar(content: Text("Fonctionnalité en développement")));
-      //   },
-      //);
+      },
+    );
   }
 }
